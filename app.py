@@ -63,6 +63,7 @@ class Artist(db.Model):
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
+
 # ----------------------------------------------------------------------------#
 # Filters.
 # ----------------------------------------------------------------------------#
@@ -93,30 +94,46 @@ def index():
 
 @app.route('/venues')
 def venues():
-    # TODO: replace with real venues data.
-    #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
-    data = [{
-        "city": "San Francisco",
-        "state": "CA",
-        "venues": [{
-            "id": 1,
-            "name": "The Musical Hop",
-            "num_upcoming_shows": 0,
-        }, {
-            "id": 3,
-            "name": "Park Square Live Music & Coffee",
-            "num_upcoming_shows": 1,
-        }]
-    }, {
-        "city": "New York",
-        "state": "NY",
-        "venues": [{
-            "id": 2,
-            "name": "The Dueling Pianos Bar",
-            "num_upcoming_shows": 0,
-        }]
-    }]
-    return render_template('pages/venues.html', areas=Venue.query.all());
+    outputData = [];
+    inputData = Venue.query.all()
+    for venue in inputData:
+        city = venue.city
+
+        #check if outputData is empty
+        if outputData is None:
+            outputData.append({
+                "city": city,
+                "state": venue.state,
+                "venues": [{
+                    "id": venue.id,
+                    "name": venue.name,
+                    "num_upcoming_shows": 0 #TODO(nk): get and aggrigate Upcoming Models
+                }]
+            })
+
+        #check if area is already in outputData
+        areaInOutput = False;
+        for data in outputData:
+            if city == data["city"]:
+                areaInOutput = True
+                data["venues"].append({
+                    "id": venue.id,
+                    "name": venue.name,
+                    "num_upcoming_show": 0 #TODO(nk): get and aggrigate Upcoming Models
+                })
+
+        #area is not in outputData
+        if areaInOutput == False:
+            outputData.append({
+                "city": city,
+                "state": venue.state,
+                "venues": [{
+                    "id": venue.id,
+                    "name": venue.name,
+                    "num_upcoming_shows": 0,  # TODO(nk): get and aggrigate Upcoming Models
+                }]
+            })
+    return render_template('pages/venues.html', areas=outputData);
 
 
 @app.route('/venues/search', methods=['POST'])
